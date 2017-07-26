@@ -34,7 +34,7 @@ type PresignedPOST struct {
 }
 
 // Creates a new presigned POST.
-func NewPresignedPOST(key string, c *Credentials, o *PolicyOptions) (*PresignedPOST, error) {
+func NewPresignedPOST(key string, c *Credentials, o *PolicyOptions) *PresignedPOST {
 	p := NewPolicy(key, c, o)
 	b64Policy := p.Base64()
 	signature := createSignature(p.C, p.Date[:8], b64Policy)
@@ -46,7 +46,7 @@ func NewPresignedPOST(key string, c *Credentials, o *PolicyOptions) (*PresignedP
 		Credential: p.Credential,
 		Date:       p.Date,
 	}
-	return post, nil
+	return post
 }
 
 // Creates the s3 endpoint to hit with a signed policy
