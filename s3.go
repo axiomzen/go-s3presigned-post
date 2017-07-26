@@ -49,8 +49,8 @@ func NewPresignedPOST(key string, c *Credentials, o *PolicyOptions) *PresignedPO
 	return post
 }
 
-// Creates the s3 endpoint to hit with a signed policy
-func CreateEndpointURL(c *Credentials) string {
+// Gets the s3 endpoint to upload a file with a signed policy
+func GetEndpointURL(c *Credentials) string {
 	return fmt.Sprintf("https://%s.s3.amazonaws.com/", c.Bucket)
 }
 
