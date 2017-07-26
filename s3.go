@@ -11,43 +11,47 @@ import (
 
 // Represents AWS credentials and config.
 type Credentials struct {
-	Region string
-	Bucket string
-	AccessKeyID string
+	Region          string
+	Bucket          string
+	AccessKeyID     string
 	SecretAccessKey string
 }
 
 // Represents policy options.
 type PolicyOptions struct {
 	ExpiryMinutes int
-	MaxFileSize int
+	MaxFileSize   int
 }
 
 // Represents presigned POST information.
 type PresignedPOST struct {
-	Key string         `json:"key"`
-	Policy string      `json:"policy"`
-	Signature string   `json:"signature"`
-	Action string      `json:"action"`
-	Credential string  `json:"credential"`
-	Date string        `json:"date"`
+	Key        string `json:"key"`
+	Policy     string `json:"policy"`
+	Algorithm  string `json:"x-amz-algorithm"`
+	Signature  string `json:"x-amz-signature"`
+	Credential string `json:"x-amz-credential"`
+	Date       string `json:"x-amz-date"`
 }
 
 // Creates a new presigned POST.
-func NewPresignedPOST(key string, c *Credentials, o *PolicyOptions) (*PresignedPOST, error) {
+func NewPresignedPOST(key string, c *Credentials, o *PolicyOptions) *PresignedPOST {
 	p := NewPolicy(key, c, o)
 	b64Policy := p.Base64()
 	signature := createSignature(p.C, p.Date[:8], b64Policy)
-	action := fmt.Sprintf("https://%s.s3.amazonaws.com/", p.Bucket)
 	post := &PresignedPOST{
-		Key: p.Key,
-		Policy: b64Policy,
-		Signature: signature,
-		Action: action,
+		Key:        p.Key,
+		Policy:     b64Policy,
+		Algorithm:  "AWS4-HMAC-SHA256",
+		Signature:  signature,
 		Credential: p.Credential,
-		Date: p.Date,
+		Date:       p.Date,
 	}
-	return post, nil
+	return post
+}
+
+// Creates the s3 endpoint to hit with a signed policy
+func CreateEndpointURL(c *Credentials) string {
+	return fmt.Sprintf("https://%s.s3.amazonaws.com/", c.Bucket)
 }
 
 // Creates the signature for a string.
@@ -85,20 +89,20 @@ const policyDocument = `
 
 const (
 	expirationFormat = "2006-01-02T15:04:05.000Z"
-	timeFormat = "20060102T150405Z"
-	shortTimeFormat = "20060102"
+	timeFormat       = "20060102T150405Z"
+	shortTimeFormat  = "20060102"
 )
 
 // Represents a new policy for uploading sounds.
 type policy struct {
 	Expiration string
-	Region string
-	Bucket string
-	Key string
+	Region     string
+	Bucket     string
+	Key        string
 	Credential string
-	Date string
-	C *Credentials
-	O *PolicyOptions
+	Date       string
+	C          *Credentials
+	O          *PolicyOptions
 }
 
 // Creates a new policy.
@@ -109,13 +113,13 @@ func NewPolicy(key string, c *Credentials, o *PolicyOptions) *policy {
 	cred := fmt.Sprintf("%s/%s/%s/s3/aws4_request", c.AccessKeyID, formattedShortTime, c.Region)
 	return &policy{
 		Expiration: t.UTC().Format(expirationFormat),
-		Region: c.Region,
-		Bucket: c.Bucket,
-		Key: key,
+		Region:     c.Region,
+		Bucket:     c.Bucket,
+		Key:        key,
 		Credential: cred,
-		Date: date,
-		C: c,
-		O: o,
+		Date:       date,
+		C:          c,
+		O:          o,
 	}
 }
 
