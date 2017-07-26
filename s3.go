@@ -27,9 +27,10 @@ type PolicyOptions struct {
 type PresignedPOST struct {
 	Key        string `json:"key"`
 	Policy     string `json:"policy"`
-	Signature  string `json:"signature"`
-	Credential string `json:"credential"`
-	Date       string `json:"date"`
+	Algorithm  string `json:"x-amz-algorithm"`
+	Signature  string `json:"x-amz-signature"`
+	Credential string `json:"x-amz-credential"`
+	Date       string `json:"x-amz-date"`
 }
 
 // Creates a new presigned POST.
@@ -41,6 +42,7 @@ func NewPresignedPOST(key string, c *Credentials, o *PolicyOptions) (*PresignedP
 	post := &PresignedPOST{
 		Key:        p.Key,
 		Policy:     b64Policy,
+		Algorithm:  "AWS4-HMAC-SHA256",
 		Signature:  signature,
 		Credential: p.Credential,
 		Date:       p.Date,
