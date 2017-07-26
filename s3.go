@@ -34,11 +34,10 @@ type PresignedPOST struct {
 }
 
 // Creates a new presigned POST.
-func NewPresignedPOST(key string, c *Credentials, o *PolicyOptions) (*PresignedPOST, string, error) {
+func NewPresignedPOST(key string, c *Credentials, o *PolicyOptions) (*PresignedPOST, error) {
 	p := NewPolicy(key, c, o)
 	b64Policy := p.Base64()
 	signature := createSignature(p.C, p.Date[:8], b64Policy)
-	endpointUrl := fmt.Sprintf("https://%s.s3.amazonaws.com/", p.Bucket)
 	post := &PresignedPOST{
 		Key:        p.Key,
 		Policy:     b64Policy,
@@ -47,7 +46,12 @@ func NewPresignedPOST(key string, c *Credentials, o *PolicyOptions) (*PresignedP
 		Credential: p.Credential,
 		Date:       p.Date,
 	}
-	return post, endpointUrl, nil
+	return post, nil
+}
+
+// Creates the s3 endpoint to hit with a signed policy
+func CreateEndpointURL(c *Credentials) string {
+	return fmt.Sprintf("https://%s.s3.amazonaws.com/", c.Bucket)
 }
 
 // Creates the signature for a string.
