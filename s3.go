@@ -55,7 +55,7 @@ func GetEndpointURL(c *Credentials) string {
 }
 
 // Gets the file url to download from
-func GetFileURL(key string, c *Credentials) {
+func GetFileURL(key string, c *Credentials) string {
 	return fmt.Sprintf("https://%s.s3.amazonaws.com/%s", c.Bucket, key)
 }
 
