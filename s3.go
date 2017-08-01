@@ -81,10 +81,8 @@ const policyDocument = `
 { "expiration": "%s",
   "conditions": [
     {"bucket": "%s"},
-    ["starts-with", "$key", "%s"],
-    {"acl": "public-read"},
+    {"key": "%s"},
     ["content-length-range", 1, %d],
-
     {"x-amz-credential": "%s"},
     {"x-amz-algorithm": "AWS4-HMAC-SHA256"},
     {"x-amz-date": "%s" }
